@@ -11,6 +11,12 @@ namespace psi::fiber
         sched.run(std::move(init));
     }
 
+    join_handle spawn(fiber_routine init)
+    {
+        auto *fiber = get_current_scheduler()->spawn(std::move(init));
+        return join_handle(fiber);
+    }
+
     namespace self
     {
         void yield()
@@ -18,9 +24,9 @@ namespace psi::fiber
             get_current_scheduler()->yield();
         }
 
-        void spawn(fiber_routine init)
+        fiber_id get_id()
         {
-            get_current_scheduler()->spawn(std::move(init));
+            return get_current_fiber()->id();
         }
 
     }

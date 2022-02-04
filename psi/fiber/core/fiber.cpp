@@ -16,6 +16,11 @@ namespace psi::fiber
 
     fiber::~fiber()
     {
+        if (observer_ != nullptr)
+        {
+            // notification complete fiber
+            observer_->on_complete();
+        }
     }
 
     void fiber::trampoline()

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <functional>
+#include <chrono>
 
 #include <psi/utility/id.hpp>
-
-#include <chrono>
+#include <psi/fiber/core/join_handle.hpp>
 
 namespace psi::fiber
 {
@@ -14,11 +14,13 @@ namespace psi::fiber
 
     void run_scheduler(fiber_routine init);
 
+    join_handle spawn(fiber_routine routine);
+
     namespace self
     {
         void yield();
 
-        void spawn(fiber_routine routine);
+        fiber_id get_id();
 
     }
 

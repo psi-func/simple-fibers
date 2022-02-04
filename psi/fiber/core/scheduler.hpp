@@ -3,10 +3,11 @@
 #include <psi/context/context.hpp>
 
 #include <psi/fiber/core/fiber.hpp>
+#include <psi/fiber/core/api.hpp>
 
 #include <psi/utility/id.hpp>
 
-#include <psi/intrusive/intrusive_list.hpp>
+// #include <psi/intrusive/intrusive_list.hpp>
 
 namespace psi::fiber
 {
@@ -40,16 +41,28 @@ namespace psi::fiber
         void run(fiber_routine init);
 
         /**
-         * @brief getting caller fiber and switching it to context placing in back of wait_queue
+         * @brief switch to scheduler and reschedule bu youself
          *
          */
         void yield();
 
         /**
-         * @brief getting caller and terminating it permanently, switching to scheduler
+         * @brief permanently terminate fiber with deleting
          *
          */
         void terminate();
+
+        /**
+         * @brief suspend current fiber
+         *
+         */
+        void suspend();
+
+        /**
+         * @brief return fiber back to scheduler
+         *
+         */
+        void resume(fiber *fiber);
 
     private:
         // control loop

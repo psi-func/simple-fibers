@@ -3,6 +3,7 @@
 #include <psi/intrusive/intrusive_list.hpp>
 
 #include <psi/fiber/core/api.hpp>
+#include <psi/fiber/core/observed_source.hpp>
 
 #include <psi/context/context.hpp>
 #include <psi/context/stack.hpp>
@@ -51,6 +52,11 @@ namespace psi::fiber
             state_ = target_state;
         }
 
+        void set_watcher(observed_source *observer)
+        {
+            observer_ = observer;
+        }
+
         void run_routine()
         {
             routine_();
@@ -65,6 +71,7 @@ namespace psi::fiber
         fiber_id id_;
         fiber_state state_;
         fiber_routine routine_;
+        observed_source *observer_ = nullptr;
         context::stack call_stack_;
         context::exec_context execution_context_;
     };

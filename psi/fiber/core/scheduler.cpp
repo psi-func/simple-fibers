@@ -73,6 +73,21 @@ namespace psi::fiber
         switch_to_scheduler(fiber);
     }
 
+    void scheduler::suspend()
+    {
+        auto *fiber = get_current_fiber();
+        fiber->set_state(fiber_state::SUSPENDED);
+        get_current_scheduler()->switch_to_scheduler(fiber);
+    }
+
+    void scheduler::resume(fiber *fiber)
+    {
+        assert(fiber->state() == fiber_state::SUSPENDED);
+
+        fiber->set_state(fiber_state::RUNNABLE);
+        schedule(fiber);
+    }
+
     // CONTROL SECTION
 
     void scheduler::run_loop()
@@ -99,6 +114,9 @@ namespace psi::fiber
         {
         case fiber_state::RUNNABLE: // from yield
             schedule(fiber);
+            break;
+        case fiber_state::SUSPENDED:
+            // do not reschedule
             break;
         case fiber_state::TERMINATED: // from terminate
             destroy(fiber);
