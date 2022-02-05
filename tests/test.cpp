@@ -1,5 +1,7 @@
 #include <psi/fiber/api.hpp>
 
+#include <psi/fiber/sync/mutex.hpp>
+
 #include <iostream>
 #include <cassert>
 
@@ -15,27 +17,43 @@ size_t fibbo(int n)
     return fibbo(n - 1) + fibbo(n - 2);
 }
 
+static int counter = 0;
+psi::fiber::mutex mutex;
+
 int main()
 {
     run_scheduler([]()
                   {
-                      auto handler = spawn([]()
+                      
+
+                      auto handler1 = spawn([]()
                                            {
+                                               ::mutex.lock();
                                                std::cout << "Hello from fiber " << self::get_id() << std::endl
                                                          << std::flush;
-                                               self::yield();
+                                                self::yield();
                                                auto f = fibbo(40);
                                                assert(f == 165580141);
                                                std::cout << f << std::endl
                                                          << std::flush;
+                                                ::mutex.unlock();
                                            });
 
-                      std::cout << "Hello from fiber " << self::get_id() << std::endl;
+                        auto handler2 = spawn([]() {
+                            ::mutex.lock();
+                            std::cout << "from fiber " << self::get_id() << std::endl;
+                            ::mutex.unlock();
 
-                      self::yield();
+                        });
 
-                      std::cout << "after yield fiber "  << self::get_id() << std::endl;
-                      handler.join(); }
+                        self::yield();
+
+                        std::cout << "Hello from main fiber " << self::get_id() << std::endl;
+
+                        handler1.join();
+                        handler2.join();
+
+                      std::cout << "after join fiber "  << self::get_id() << std::endl; }
 
     );
 
