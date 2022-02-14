@@ -1,7 +1,8 @@
 #include <psi/fiber/core/scheduler.hpp>
+#include <psi/fiber/core/stack_pool.hpp>
 
 #include <psi/context/context.hpp>
-#include <psi/context/stack.hpp>
+// #include <psi/context/stack.hpp>
 
 #include <iostream>
 
@@ -134,13 +135,14 @@ namespace psi::fiber
 
     fiber *scheduler::create_fiber(fiber_routine routine)
     {
-        auto stack = context::stack::allocate_pages(8);
+        auto stack = acquire_stack();
         fiber_id id = id_gen_.next_id();
         return new fiber(std::move(routine), std::move(stack), id);
     }
 
     void scheduler::destroy(fiber *fiber)
     {
+        release_stack(std::move(fiber->stack()));
         delete fiber;
     }
 
